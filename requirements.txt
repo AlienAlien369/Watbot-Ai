@@ -3,6 +3,7 @@ uvicorn[standard]
 python-multipart
 groq
 sentence-transformers
+einops
 chromadb
 pypdf
 sqlalchemy
