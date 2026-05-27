@@ -155,12 +155,12 @@
       flex-shrink: 0;
     }
 
-    .stripe-link a {
-      color: #f5a623;
-      text-decoration: none;
-      font-weight: 600;
-    }
-    .stripe-link a:hover { text-decoration: underline; }
+    .config-row { display: flex; gap: 8px; align-items: flex-end; }
+    .config-row input { flex: 1; margin-bottom: 0; }
+    .config-row button { width: auto; padding: 10px 14px; flex-shrink: 0; font-size: 0.82rem; }
+    .tag { display: inline-block; font-size: 0.72rem; padding: 2px 8px; border-radius: 20px; margin-left: 8px; vertical-align: middle; }
+    .tag.ok  { background: rgba(80,200,120,0.2); color: #80e0a0; border: 1px solid rgba(80,200,120,0.3); }
+    .tag.err { background: rgba(233,69,96,0.2);  color: #ff8080; border: 1px solid rgba(233,69,96,0.3); }
 
     footer {
       text-align: center;
@@ -176,6 +176,17 @@
       <h1>🍕 watbotai</h1>
       <p>Multi-tenant PDF chat · Pizza ordering bot POC</p>
     </header>
+
+    <!-- Backend URL config -->
+    <div class="card">
+      <h2>🔗 Backend URL <span id="backendStatus" class="tag err">not set</span></h2>
+      <label for="backendUrl">Render backend URL (e.g. https://watbotai-backend.onrender.com)</label>
+      <div class="config-row">
+        <input type="text" id="backendUrl" placeholder="https://watbot-ai.onrender.com" />
+        <button onclick="saveBackend()" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);">Save</button>
+        <button onclick="testBackend()" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);">Test</button>
+      </div>
+    </div>
 
     <!-- Tenant config -->
     <div class="card">
@@ -209,8 +220,41 @@
   </div>
 
   <script>
-    // ── Backend URL: set VITE_BACKEND_URL at build time, or falls back to localhost ──
-    const BACKEND = (window.__BACKEND_URL__ || "BACKEND_URL_PLACEHOLDER").replace(/\/$/, "");
+    // ── Backend URL: read from localStorage, fallback to env placeholder ──
+    let BACKEND = (localStorage.getItem("watbot_backend") || "").replace(/\/$/, "");
+
+    function saveBackend() {
+      const val = document.getElementById("backendUrl").value.trim().replace(/\/$/, "");
+      if (!val) return;
+      BACKEND = val;
+      localStorage.setItem("watbot_backend", val);
+      updateBackendStatus(true, "saved");
+    }
+
+    async function testBackend() {
+      if (!BACKEND) { updateBackendStatus(false, "enter URL first"); return; }
+      updateBackendStatus(null, "testing…");
+      try {
+        const r = await fetch(`${BACKEND}/`, { method: "GET" });
+        if (r.ok) updateBackendStatus(true, "connected ✓");
+        else updateBackendStatus(false, `HTTP ${r.status}`);
+      } catch(e) { updateBackendStatus(false, "unreachable"); }
+    }
+
+    function updateBackendStatus(ok, msg) {
+      const el = document.getElementById("backendStatus");
+      el.textContent = msg;
+      el.className = "tag " + (ok === true ? "ok" : ok === false ? "err" : "");
+    }
+
+    // Restore saved backend URL on load
+    window.addEventListener("DOMContentLoaded", () => {
+      const saved = localStorage.getItem("watbot_backend");
+      if (saved) {
+        document.getElementById("backendUrl").value = saved;
+        updateBackendStatus(true, "saved");
+      }
+    });
 
     function getTenant() {
       return document.getElementById("tenantId").value.trim() || "tenant_123";
