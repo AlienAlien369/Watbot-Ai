@@ -2,8 +2,7 @@ fastapi
 uvicorn[standard]
 python-multipart
 groq
-sentence-transformers
-einops
+fastembed
 chromadb
 pypdf
 sqlalchemy

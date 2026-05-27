@@ -15,8 +15,9 @@ from dotenv import load_dotenv
 from typing import List
 import math
 import traceback
-from sentence_transformers import SentenceTransformer
-st_model = SentenceTransformer("nomic-ai/nomic-embed-text-v1",trust_remote_code=True)  
+from fastembed import TextEmbedding
+embed_model = TextEmbedding("BAAI/bge-small-en-v1.5")
+print("[STEP-0b] fastembed model loaded")
 
 load_dotenv()
 print("[STEP-0] .env loaded")
@@ -126,8 +127,8 @@ EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "nomic-embed-text-v1.5")
 print(f"[STEP-3b] embedding model = {EMBEDDING_MODEL}")
 
 async def _get_embeddings_for_texts(texts: List[str], **kw) -> List[List[float]]:
-    print(f"[STEP-3c] local ST embedding – {len(texts)} texts")
-    return st_model.encode(texts, normalize_embeddings=True).tolist()
+    print(f"[STEP-3c] fastembed embedding – {len(texts)} texts")
+    return [emb.tolist() for emb in embed_model.embed(texts)]
 
 
 # ------------------------------------------------------------
@@ -261,7 +262,7 @@ async def ask(req: AskRequest):
 
     # === 1. Embed question ===
     try:
-        q_embedding = st_model.encode([question], normalize_embeddings=True).tolist()[0]
+        q_embedding = list(embed_model.embed([question]))[0].tolist()
     except Exception:
         traceback.print_exc()
         return {"answer": "Embedding failed.", "sources_returned": 0}
