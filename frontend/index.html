@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>watbotai — Pizza Bot</title>
+  <title>watbotai — Document Q&A</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -177,8 +177,8 @@
 <body>
   <div class="container">
     <header>
-      <h1>🍕 watbotai</h1>
-      <p>Multi-tenant PDF chat · Pizza ordering bot POC</p>
+      <h1>📄 watbotai</h1>
+      <p>Multi-tenant PDF document Q&amp;A</p>
     </header>
 
     <!-- Backend status indicator (auto-detected, no user input) -->
@@ -207,8 +207,8 @@
       <h2>💬 Chat with the Bot</h2>
       <div class="chat-messages" id="chatMessages"></div>
       <div class="chat-input-row">
-        <input type="text" id="question" placeholder="Ask the pizza bot something…"
-               value="I want a pepperoni pizza, please"
+        <input type="text" id="question" placeholder="Ask something about your document…"
+               value=""
                onkeydown="if(event.key==='Enter') sendMessage()" />
         <button id="sendBtn" onclick="sendMessage()">Send</button>
       </div>

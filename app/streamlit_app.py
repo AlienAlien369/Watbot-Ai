@@ -26,7 +26,7 @@ if st.button("Upload PDF"):
 
 st.markdown("---")
 st.header("Chat")
-question = st.text_input("Ask the pizza bot something", value="I want a margherita, please.")
+question = st.text_input("Ask something about your document", value="What is the main topic of this document?")
 if st.button("Send"):
     payload = {"tenant_id": tenant_id, "question": question}
     r = requests.post(f"{BACKEND_URL}/ask", json=payload)

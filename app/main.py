@@ -311,8 +311,8 @@ async def ask(req: AskRequest):
 
     # === 4. LLM call ===
     system_prompt = (
-        "You are PizzaPal, a friendly pizza-ordering assistant. Keep answers short and helpful. "
-        "Always include this Stripe test link at the end: " + STRIPE_TEST_LINK
+        "You are DocBot, a helpful document assistant. Answer questions based only on the provided context. Keep answers concise and accurate. "
+        "If the answer is not in the context, say so clearly."
     )
     messages = [
         {"role": "system", "content": system_prompt},

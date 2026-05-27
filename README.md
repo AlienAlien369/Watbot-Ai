@@ -1,20 +1,17 @@
-# watbotai — Minimal Multi-tenant POC
+# watbotai — Multi-tenant Document Q&A POC
 
-This repository is a Proof-of-Concept (POC) for **watbotai**: a multi-tenant document + chat system.
+This repository is a Proof-of-Concept (POC) for **watbotai**: a multi-tenant PDF document querying system.
 
-Features
+## Features
 - FastAPI backend with:
-  - `POST /upload` — upload PDF (multipart) with `tenant_id`
-  - `POST /ask` — ask a JSON question `{ "tenant_id": "...", "question": "..." }`
-- PostgreSQL schema with `tenant_id` on every stored row (see `models.sql`)
-- LangChain to split PDFs, OpenAI **text-embedding-ada-002** embeddings, store in local Chroma DB (per-tenant collection)
-- Retrieval of top-3 chunks
-- Chat via `gpt-3.5-turbo` using a pizza-ordering bot persona. Reply **includes** a hard-coded Stripe test Payment Link.
-- Streamlit front page for uploading PDF and chatting
-- Plain HTML widget (`static/widget.html`) suitable for GitHub Pages that POSTs to `/ask`
-- All secrets in `.env` (sample `.env.example` provided)
-- `requirements.txt`, `Dockerfile`, and usage examples (cURL + web demo)
-- Single python folder, friendly for serverless deployments
+  - `POST /upload` — upload a PDF (multipart) with `tenant_id`
+  - `POST /ask` — ask a question `{ "tenant_id": "...", "question": "..." }`
+- Per-tenant ChromaDB vector collections using **fastembed** (BAAI/bge-small-en-v1.5)
+- Retrieval of top-3 relevant chunks from the uploaded document
+- LLM-powered answers via **Groq** (llama-3.1-8b-instant)
+- React-style SPA frontend (plain HTML/JS) deployed on **Vercel**
+- All secrets in `.env`
+- `requirements.txt`, `Dockerfile`, and `render.yaml` for Render deployment
 
 > NOTE: This is a POC. Keep your real secrets safe; do not hardcode real API keys.
 
@@ -29,20 +26,17 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-2. Create a Postgres database and set environment variables in `.env` (see `.env.example`).
+2. Set environment variables in `.env`:
+```
+GROQ_API_KEY=your_groq_api_key
+```
 
 3. Start the FastAPI app:
 ```bash
 uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-4. Start Streamlit UI:
-```bash
-streamlit run app/streamlit_app.py
-# opens at http://localhost:8501
-```
-
-5. Upload a PDF (via Streamlit or curl), then ask questions.
+4. Open `frontend/index.html` or visit the deployed Vercel URL.
 
 ---
 
@@ -59,7 +53,7 @@ Ask a question:
 ```bash
 curl -X POST "http://localhost:8000/ask" \
   -H "Content-Type: application/json" \
-  -d '{"tenant_id": "tenant_123", "question": "I want a pepperoni pizza, please"}'
+  -d '{"tenant_id": "tenant_123", "question": "What is the main topic of this document?"}'
 ```
 
 ---
@@ -67,24 +61,13 @@ curl -X POST "http://localhost:8000/ask" \
 ## Files of interest
 
 - `app/main.py` — FastAPI application
-- `app/db.py` — Postgres helper + schema helper
-- `app/models.sql` — SQL to create table
-- `app/streamlit_app.py` — Streamlit frontend
-- `app/static/widget.html` — Plain HTML widget that POSTs to `/ask`
-- `.env.example` — example environment variables
-- `Dockerfile` — example container
+- `app/streamlit_app.py` — Streamlit frontend (legacy)
+- `app/static/widget.html` — Plain HTML widget
+- `frontend/index.html` — SPA frontend (deployed on Vercel)
+- `Dockerfile` — Container config for Render
+- `render.yaml` — Render deployment config
 - `requirements.txt` — pip packages
 
 ---
 
-## Stripe test payment link
-
-The bot inserts a test Stripe Payment Link in each reply:
-
-`https://buy.stripe.com/test_14k9Aq7fG2bK2Qw9AE`
-
-Replace with your own link as needed.
-
---- 
-
-If you want I can walk through each file. Enjoy!# Watbot-Ai
+Enjoy!
