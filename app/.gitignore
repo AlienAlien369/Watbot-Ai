@@ -1,0 +1,4 @@
+__pycache__/
+.env
+watbotai.db
+chroma_db/

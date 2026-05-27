@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <title>watbotai Widget</title>
+    <style>
+      body { font-family: system-ui, Arial; padding: 12px; max-width: 480px; }
+      textarea { width:100%; height:80px; }
+      #resp { white-space: pre-wrap; margin-top: 10px; background:#f9f9f9; padding:8px; border-radius:6px; }
+    </style>
+  </head>
+  <body>
+    <h3>watbotai Widget (pizza bot)</h3>
+    <label>Tenant ID: <input id="tenant" value="tenant_123" /></label><br/><br/>
+    <textarea id="q" placeholder="Ask pizza bot...">I want a pepperoni pizza</textarea><br/>
+    <button id="send">Send</button>
+    <div id="resp"></div>
+
+    <script>
+      const backend = "https://your-backend.example.com/ask"; // replace with your deployed backend URL
+      document.getElementById("send").addEventListener("click", async () => {
+        const tenant = document.getElementById("tenant").value;
+        const q = document.getElementById("q").value;
+        document.getElementById("resp").textContent = "Sending...";
+        try {
+          const res = await fetch(backend, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ tenant_id: tenant, question: q })
+          });
+          const data = await res.json();
+          document.getElementById("resp").textContent = data.answer || JSON.stringify(data);
+        } catch (e) {
+          document.getElementById("resp").textContent = "Error: " + e.toString();
+        }
+      });
+    </script>
+  </body>
+</html>

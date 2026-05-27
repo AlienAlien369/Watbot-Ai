@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: watbotai-backend
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false        # Set this in Render dashboard
+      - key: STRIPE_TEST_LINK
+        value: https://buy.stripe.com/test_aFa14o0x985P46759h8Vi00
+      - key: CHROMA_PERSIST_DIR
+        value: ./chroma_db
