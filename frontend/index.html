@@ -218,37 +218,24 @@
   </div>
 
   <script>
-    let BACKEND = "";
+    // Backend URL — set once, never shown to users
+    const BACKEND = "https://watbotai-backend.onrender.com";
 
-    // ── Auto-fetch backend URL from Vercel serverless config endpoint ──
+    // ── Auto-ping backend on load ──
     async function initBackend() {
       const statusEl = document.getElementById("backendStatus");
       try {
-        const res = await fetch("/api/config");
-        const data = await res.json();
-        if (data.backendUrl) {
-          BACKEND = data.backendUrl.replace(/\/$/, "");
-          // Verify it's reachable
-          try {
-            const ping = await fetch(`${BACKEND}/`, { method: "GET" });
-            if (ping.ok) {
-              statusEl.textContent = "✅ Backend connected";
-              statusEl.className = "status-bar ok";
-            } else {
-              statusEl.textContent = `⚠️ Backend returned ${ping.status}`;
-              statusEl.className = "status-bar err";
-            }
-          } catch {
-            statusEl.textContent = "⚠️ Backend unreachable";
-            statusEl.className = "status-bar err";
-          }
+        const ping = await fetch(`${BACKEND}/`, { method: "GET" });
+        if (ping.ok) {
+          statusEl.textContent = "✅ Backend connected";
+          statusEl.className = "status-bar ok";
         } else {
-          statusEl.textContent = "⚠️ BACKEND_URL not configured in Vercel";
+          statusEl.textContent = `⚠️ Backend returned ${ping.status}`;
           statusEl.className = "status-bar err";
         }
-      } catch (e) {
-        statusEl.textContent = "⚠️ Config fetch failed";
-        statusEl.className = "status-bar err";
+      } catch {
+        statusEl.textContent = "⚠️ Backend starting up, please wait…";
+        statusEl.className = "status-bar loading";
       }
     }
 
