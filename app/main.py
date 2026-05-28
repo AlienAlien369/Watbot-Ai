@@ -184,7 +184,6 @@ def _get_chroma_client_and_collection(tenant_id: str, persist_dir: str):
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("watbotai")
 
-STRIPE_TEST_LINK = os.getenv("STRIPE_TEST_LINK", "https://buy.stripe.com/test_14k9Aq7fG2bK2Qw9AE ")
 
 app = FastAPI(title="watbotai POC (groq)")
 print("[STEP-5a] FastAPI app instantiated")
@@ -311,8 +310,16 @@ async def ask(req: AskRequest):
 
     # === 4. LLM call ===
     system_prompt = (
-        "You are DocBot, a helpful document assistant. Answer questions based only on the provided context. Keep answers concise and accurate. "
-        "If the answer is not in the context, say so clearly."
+        "You are DocBot, an expert document assistant. Your job is to answer questions accurately based solely on the provided document context.\n\n"
+        "Guidelines:\n"
+        "- Give clear, well-structured answers using the context provided.\n"
+        "- If the context contains lists, steps, or structured data, preserve that structure in your answer.\n"
+        "- If the answer spans multiple points, use bullet points or numbered lists for clarity.\n"
+        "- Quote or reference specific parts of the document when relevant.\n"
+        "- If the answer is not found in the context, clearly say: 'This information is not available in the uploaded document.'\n"
+        "- Do NOT make up information or draw from outside knowledge.\n"
+        "- Do NOT add any payment links, external URLs, or unrelated content.\n"
+        "- Keep your tone professional and helpful."
     )
     messages = [
         {"role": "system", "content": system_prompt},
@@ -321,21 +328,17 @@ async def ask(req: AskRequest):
 
     try:
         chat_resp = await groq_client.chat.completions.create(
-            model="llama-3.1-8b-instant",
+            model="llama-3.3-70b-versatile",
             messages=messages,
-            max_tokens=400,
-            temperature=0.2,
+            max_tokens=800,
+            temperature=0.1,
         )
         answer = chat_resp.choices[0].message.content
     except Exception as e:
         import traceback
-        traceback.print_exc()          # <-- full error to console
-        print("[DEBUG] messages sent:", messages)   # also log the payload
+        traceback.print_exc()
+        print("[DEBUG] messages sent:", messages)
         return {"answer": "LLM failed.", "sources_returned": len(sources)}
-
-
-    if STRIPE_TEST_LINK not in answer:
-        answer += "\n\nPayment link: " + STRIPE_TEST_LINK
 
     return {
         "answer": answer,
